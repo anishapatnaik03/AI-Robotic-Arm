@@ -1,0 +1,92 @@
+#include <Servo.h>
+
+Servo servoThumb;
+Servo servoIndex;
+Servo servoMiddle;
+Servo servoRing;
+Servo servoPinky;
+
+void setup() {
+  Serial.begin(9600);
+  
+  // Attach servos to pins
+  servoThumb.attach(7);
+  servoIndex.attach(8);
+  servoMiddle.attach(9);
+  servoRing.attach(10);
+  servoPinky.attach(11);
+  
+  // Initialize servos to closed position
+  servoThumb.write(0);
+  servoIndex.write(0);
+  servoMiddle.write(0);
+  servoRing.write(0);
+  servoPinky.write(0);
+  
+  Serial.println("Arduino Ready");
+}
+
+void loop() {
+  if (Serial.available() > 0) {
+    // Read the incoming data as a string until newline
+    String data = Serial.readStringUntil('\n');
+    data.trim();  // Remove any whitespace
+    
+    // Parse the comma-separated values
+    int values[5] = {0, 0, 0, 0, 0};  // Initialize array
+    int index = 0;
+    int lastIndex = 0;
+    
+    // Parse manually to avoid const char* issues
+    for (int i = 0; i <= data.length(); i++) {
+      if (data.charAt(i) == ',' || i == data.length()) {
+        String substring = data.substring(lastIndex, i);
+        values[index++] = substring.toInt();
+        lastIndex = i + 1;
+        
+        if (index >= 5) break;  // Safety check
+      }
+    }
+    
+    // Debug: Print received values
+    Serial.print("Received: ");
+    for (int j = 0; j < 5; j++) {
+      Serial.print(values[j]);
+      Serial.print(" ");
+    }
+    Serial.println();
+    
+    // Control servos based on finger states
+    // 1 = finger open (180°), 0 = finger closed (0°)
+    // Adjust angles if needed based on your mechanical setup
+    if (values[0] == 1) { 
+      servoThumb.write(180); 
+    } else { 
+      servoThumb.write(0); 
+    }
+    
+    if (values[1] == 1) { 
+      servoIndex.write(180); 
+    } else { 
+      servoIndex.write(0); 
+    }
+    
+    if (values[2] == 1) { 
+      servoMiddle.write(180); 
+    } else { 
+      servoMiddle.write(0); 
+    }
+    
+    if (values[3] == 1) { 
+      servoRing.write(180); 
+    } else { 
+      servoRing.write(0); 
+    }
+    
+    if (values[4] == 1) { 
+      servoPinky.write(180); 
+    } else { 
+      servoPinky.write(0); 
+    }
+  }
+}
